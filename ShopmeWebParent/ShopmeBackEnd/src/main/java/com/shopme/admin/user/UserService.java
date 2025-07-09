@@ -20,7 +20,7 @@ import jakarta.transaction.Transactional;
 @Transactional
 public class UserService {
 	public static final int USERS_PER_PAGE = 4;
-	
+
 	@Autowired
 	private UserRepository userRepo;
 
@@ -30,21 +30,25 @@ public class UserService {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
+	public User getByEmail(String email) {
+		return userRepo.getUserByEmail(email);
+	}
+
 	public List<User> listAll() {
 		return (List<User>) userRepo.findAll(Sort.by("firstName").ascending());
 	}
-	
+
 	public Page<User> listByPage(int pageNum, String sortField, String sortDir, String keyword) {
 		Sort sort = Sort.by(sortField);
-		
+
 		sort = sortDir.equals("asc") ? sort.ascending() : sort.descending();
-		
+
 		Pageable pageable = PageRequest.of(pageNum - 1, USERS_PER_PAGE, sort);
-		
+
 		if (keyword != null) {
 			return userRepo.findAll(keyword, pageable);
 		}
-		
+
 		return userRepo.findAll(pageable);
 	}
 
@@ -57,7 +61,7 @@ public class UserService {
 
 		if (isUpdatingUser) {
 			User existingUser = userRepo.findById(user.getId()).get();
-			
+
 			if (user.getPassword().isEmpty()) {
 				user.setPassword(existingUser.getPassword());
 			} else {
@@ -67,6 +71,24 @@ public class UserService {
 			encodePassword(user);
 		}
 		return userRepo.save(user);
+	}
+
+	public User updateAccount(User userInForm) {
+		User userInDB = userRepo.findById(userInForm.getId()).get();
+
+		if (!userInForm.getPassword().isEmpty()) {
+			userInDB.setPassword(userInForm.getPassword());
+			encodePassword(userInDB);
+		}
+
+		if (userInForm.getPhotos() != null) {
+			userInDB.setPhotos(userInForm.getPhotos());
+		}
+
+		userInDB.setFirstName(userInForm.getFirstName());
+		userInDB.setLastName(userInForm.getLastName());
+
+		return userRepo.save(userInDB);
 	}
 
 	private void encodePassword(User user) {
@@ -101,18 +123,18 @@ public class UserService {
 			throw new UserNotFoundException("Could not find any user with ID " + id);
 		}
 	}
-	
+
 	public void delete(Integer id) throws UserNotFoundException {
 		Long countById = userRepo.countById(id);
-		if(countById == null || countById == 0) {
+		if (countById == null || countById == 0) {
 			throw new UserNotFoundException("Could not find any user with ID " + id);
 		}
-		
+
 		userRepo.deleteById(id);
 	}
-	
+
 	public void updateUserEnabledStatus(Integer id, boolean enabled) {
 		userRepo.updateEnabledStatus(id, enabled);
 	}
-	
+
 }

@@ -38,7 +38,9 @@ public class WebSecurityConfig {
 	SecurityFilterChain configureHttp(HttpSecurity http) throws Exception {
 		http.authenticationProvider(authenticationProvider());
 
+		
 		http.authorizeHttpRequests(auth -> auth
+				.requestMatchers("/users/**").hasAuthority("Admin")
 				.anyRequest().authenticated()
 			)
 			.formLogin(form -> form

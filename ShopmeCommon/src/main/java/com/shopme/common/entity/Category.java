@@ -9,13 +9,13 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "categories")
-
 public class Category {
 	
 	@Id
@@ -33,12 +33,30 @@ public class Category {
 
 	private boolean enabled;
 	
-	@OneToOne
+	@ManyToOne
 	@JoinColumn(name = "parent_id")
 	private Category parent;
 
 	@OneToMany(mappedBy = "parent")
 	private Set<Category> children = new HashSet<>();
+	
+	public Category() {
+	}
+
+	public Category(Integer id) {
+		this.id = id;
+	}
+
+	public Category(String name) {
+		this.name = name;
+		this.alias = name;
+		this.image = "default.png";
+	}
+	
+	public Category(String name, Category parent) {
+		this(name);
+		this.parent = parent;
+	}
 
 	public Integer getId() {
 		return id;

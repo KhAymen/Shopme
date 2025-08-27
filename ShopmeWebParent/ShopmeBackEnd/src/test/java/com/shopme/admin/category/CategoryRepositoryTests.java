@@ -99,7 +99,7 @@ public class CategoryRepositoryTests {
 	
 	@Test
 	public void testListRootCategories() {
-		List<Category> rootCategories = repo.findRootCategories();
+		List<Category> rootCategories = repo.findRootCategories(Sort.by("name").ascending());
 		rootCategories.forEach(cat -> System.out.println(cat.getName()));
 	}
 	

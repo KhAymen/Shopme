@@ -22,20 +22,20 @@ public class CategoryService {
 
 	@Autowired
 	private CategoryRepository repo;
-	
+
 	public List<Category> listAll(String sortDir) {
 		Sort sort = Sort.by("name");
-		
-		if(sortDir.equals("asc")) {
+
+		if (sortDir.equals("asc")) {
 			sort = sort.ascending();
-		}  else if (sortDir.equals("desc")) {
+		} else if (sortDir.equals("desc")) {
 			sort = sort.descending();
 		}
-		
+
 		List<Category> rootCategories = repo.findRootCategories(sort);
 		return listHierarchicalCategories(rootCategories, sortDir);
 	}
-	
+
 	private List<Category> listHierarchicalCategories(List<Category> rootCategories, String sortDir) {
 		List<Category> hierarchicalCategories = new ArrayList<>();
 
@@ -54,15 +54,15 @@ public class CategoryService {
 
 		return hierarchicalCategories;
 	}
-	
-	private void listSubHierarchicalCategories(List<Category> hierarchicalCategories,
-			Category parent, int subLevel, String sortDir) {
+
+	private void listSubHierarchicalCategories(List<Category> hierarchicalCategories, Category parent, int subLevel,
+			String sortDir) {
 		Set<Category> children = sortSubCategories(parent.getChildren(), sortDir);
 		int newSubLevel = subLevel + 1;
 
 		for (Category subCategory : children) {
 			String name = "";
-			for (int i = 0; i < newSubLevel; i++) {				
+			for (int i = 0; i < newSubLevel; i++) {
 				name += "--";
 			}
 			name += subCategory.getName();
@@ -73,20 +73,20 @@ public class CategoryService {
 		}
 
 	}
-	
+
 	public Category save(Category category) {
 		return repo.save(category);
 	}
-	
+
 	public List<Category> listCategoriesUsedInForm() {
 		List<Category> categoriesUsedInForm = new ArrayList<>();
-		
+
 		Iterable<Category> categoriesInDB = repo.findRootCategories(Sort.by("name").ascending());
-		
+
 		for (Category category : categoriesInDB) {
 			if (category.getParent() == null) {
 				categoriesUsedInForm.add(Category.copyIdAndName(category));
-				
+
 				Set<Category> children = sortSubCategories(category.getChildren());
 
 				for (Category subCategory : children) {
@@ -96,10 +96,10 @@ public class CategoryService {
 				}
 			}
 		}
-		
+
 		return categoriesUsedInForm;
 	}
-	
+
 	private void listSubCategoriesUsedInForm(List<Category> categoriesUsedInForm, Category parent, int subLevel) {
 		int newSubLevel = subLevel + 1;
 		Set<Category> children = sortSubCategories(parent.getChildren());
@@ -110,13 +110,13 @@ public class CategoryService {
 				name += "--";
 			}
 			name += subCategory.getName();
-			
+
 			categoriesUsedInForm.add(Category.copyIdAndName(subCategory.getId(), name));
 
 			listSubCategoriesUsedInForm(categoriesUsedInForm, subCategory, newSubLevel);
 		}
 	}
-	
+
 	public Category get(Integer id) throws CategoryNotFoundException {
 		try {
 			return repo.findById(id).get();
@@ -124,7 +124,7 @@ public class CategoryService {
 			throw new CategoryNotFoundException("Could not find any category with ID " + id);
 		}
 	}
-	
+
 	public String checkUnique(Integer id, String name, String alias) {
 		boolean isCreatingNew = (id == null || id == 0);
 
@@ -136,7 +136,7 @@ public class CategoryService {
 			} else {
 				Category categoryByAlias = repo.findByAlias(alias);
 				if (categoryByAlias != null) {
-					return "DuplicateAlias";	
+					return "DuplicateAlias";
 				}
 			}
 		} else {
@@ -153,7 +153,7 @@ public class CategoryService {
 
 		return "OK";
 	}
-	
+
 	private SortedSet<Category> sortSubCategories(Set<Category> children) {
 		return sortSubCategories(children, "asc");
 	}
@@ -174,8 +174,17 @@ public class CategoryService {
 
 		return sortedChildren;
 	}
-	
+
 	public void updateCategoryEnabledStatus(Integer id, boolean enabled) {
 		repo.updateEnabledStatus(id, enabled);
+	}
+
+	public void delete(Integer id) throws CategoryNotFoundException {
+		Long countById = repo.countById(id);
+		if (countById == null || countById == 0) {
+			throw new CategoryNotFoundException("Could not find any category with ID " + id);
+		}
+
+		repo.deleteById(id);
 	}
 }

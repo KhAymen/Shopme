@@ -18,11 +18,11 @@ import jakarta.persistence.Transient;
 @Entity
 @Table(name = "categories")
 public class Category {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
-	
+
 	@Column(length = 128, nullable = false, unique = true)
 	private String name;
 
@@ -33,37 +33,40 @@ public class Category {
 	private String image;
 
 	private boolean enabled;
-	
+
+	@Transient
+	private boolean hasChildren;
+
 	@ManyToOne
 	@JoinColumn(name = "parent_id")
 	private Category parent;
 
 	@OneToMany(mappedBy = "parent")
 	private Set<Category> children = new HashSet<>();
-	
+
 	public Category() {
 	}
 
 	public Category(Integer id) {
 		this.id = id;
 	}
-	
+
 	public static Category copyIdAndName(Category category) {
 		Category copyCategory = new Category();
 		copyCategory.setId(category.getId());
 		copyCategory.setName(category.getName());
-		
+
 		return copyCategory;
 	}
-	
+
 	public static Category copyIdAndName(Integer id, String name) {
 		Category copyCategory = new Category();
 		copyCategory.setId(id);
 		copyCategory.setName(name);
-		     
+
 		return copyCategory;
 	}
-	
+
 	public static Category copyFull(Category category) {
 		Category copyCategory = new Category();
 		copyCategory.setId(category.getId());
@@ -71,10 +74,11 @@ public class Category {
 		copyCategory.setImage(category.getImage());
 		copyCategory.setAlias(category.getAlias());
 		copyCategory.setEnabled(category.isEnabled());
+		copyCategory.setHasChildren(category.getChildren().size() > 0);
 
-		return copyCategory;		
+		return copyCategory;
 	}
-	
+
 	public static Category copyFull(Category category, String name) {
 		Category copyCategory = Category.copyFull(category);
 		copyCategory.setName(name);
@@ -87,13 +91,11 @@ public class Category {
 		this.alias = name;
 		this.image = "default.png";
 	}
-	
+
 	public Category(String name, Category parent) {
 		this(name);
 		this.parent = parent;
 	}
-	
-	
 
 	public Category(Integer id, String name, String alias) {
 		super();
@@ -157,15 +159,21 @@ public class Category {
 	public void setChildren(Set<Category> children) {
 		this.children = children;
 	}
-	
+
 	@Transient
-	public String getImagePath() {	
-		if (this.id == null) 
+	public String getImagePath() {
+		if (this.id == null)
 			return "/images/image-thumbnail.png";
-		
+
 		return "/category-images/" + this.id + "/" + this.image;
 	}
-	
-	
- 
+
+	public boolean isHasChildren() {
+		return hasChildren;
+	}
+
+	public void setHasChildren(boolean hasChildren) {
+		this.hasChildren = hasChildren;
+	}
+
 }

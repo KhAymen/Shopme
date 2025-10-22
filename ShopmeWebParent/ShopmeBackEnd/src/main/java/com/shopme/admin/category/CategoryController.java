@@ -36,7 +36,7 @@ public class CategoryController {
 	@GetMapping("/categories/page/{pageNum}") 
 	public String listByPage(@PathVariable(name = "pageNum") int pageNum, 
 			@RequestParam("sortDir") String sortDir, 
-			@RequestParam("keyword") String keyword, 
+		    @RequestParam(name = "keyword", required = false) String keyword,
 			Model model) {
 		
 		if (sortDir ==  null || sortDir.isEmpty()) {

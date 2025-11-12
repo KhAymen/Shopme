@@ -175,5 +175,9 @@ public class Category {
 	public void setHasChildren(boolean hasChildren) {
 		this.hasChildren = hasChildren;
 	}
-
+	
+	@Override
+	public String toString() {
+		return this.name;
+	}
 }

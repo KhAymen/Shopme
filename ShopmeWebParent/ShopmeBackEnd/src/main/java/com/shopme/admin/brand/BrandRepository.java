@@ -7,4 +7,6 @@ import com.shopme.common.entity.Brand;
 
 public interface BrandRepository extends CrudRepository<Brand, Integer>, PagingAndSortingRepository<Brand, Integer> {
 
+	
+	public Long countById(Integer id);
 }

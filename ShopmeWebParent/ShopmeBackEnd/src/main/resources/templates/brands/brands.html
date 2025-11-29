@@ -16,7 +16,6 @@
 		</div>
 
 
-
 		<div th:replace="fragments :: search_form_and_message('/brands/page/1')" />
 
 		<div class="full-details">
@@ -33,7 +32,9 @@
 				<tbody>
 					<tr th:each="brand : ${listBrands}">
 						<td>[[${brand.id}]]</td>
-						<td></td>
+						<td>
+							<img th:src="@{${brand.logoPath}}" style="width: 100px;" class="img-fluid" />
+						</td>
 						<td>[[${brand.name}]]</td>
 						<td>
 							<th:block th:each="cat: ${brand.categories}">

@@ -9,4 +9,6 @@ public interface BrandRepository extends CrudRepository<Brand, Integer>, PagingA
 
 	
 	public Long countById(Integer id);
+	
+	public Brand findByName(String name);
 }
